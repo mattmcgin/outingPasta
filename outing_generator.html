@@ -12,7 +12,7 @@
 <body>
     <h2>Reminder Generator</h2>
     <p>Paste your outing lines below (one per line):</p>
-    <textarea id="input" placeholder="e.g. 01/01 Monday 6:00am, Water Outing - John Brown, James Green"></textarea>
+    <textarea id="input" placeholder="e.g. 01/01 Monday 6:00am, Water Outing - John Smith, Jane Jones"></textarea>
     <br>
     <button onclick="downloadCSV()">Download CSV for Calendar</button>
 
@@ -20,7 +20,7 @@
         function downloadCSV() {
             const input = document.getElementById("input").value.trim();
             const lines = input.split("\n");
-            let csvRows = ["Subject,Start Date,Start Time,Description"];
+            let csvRows = ["Subject,Start Date,Start Time,End Date,End Time,Description"];
             const currentYear = new Date().getFullYear();
 
             lines.forEach(line => {
@@ -34,26 +34,36 @@
                     const day = parseInt(dateMatch[1]);
                     const month = parseInt(dateMatch[2]) - 1; // JS months 0-11
 
-                    // Calculate day before at 7AM
-                    const eventDate = new Date(currentYear, month, day, 7, 0);
-                    eventDate.setDate(eventDate.getDate() - 1);
+                    // Start time = 7 AM day before
+                    const startDateTime = new Date(currentYear, month, day, 7, 0);
+                    startDateTime.setDate(startDateTime.getDate() - 1);
 
-                    // Format date DD/MM/YYYY
-                    const startDate = ("0"+eventDate.getDate()).slice(-2) + "/" + ("0"+(eventDate.getMonth()+1)).slice(-2) + "/" + eventDate.getFullYear();
+                    // End time = 15 minutes after start
+                    const endDateTime = new Date(startDateTime.getTime() + 15 * 60000);
+
+                    // Format dates MM/DD/YYYY for Google Calendar
+                    const formatDate = dt => ("0"+(dt.getMonth()+1)).slice(-2) + "/" + ("0"+dt.getDate()).slice(-2) + "/" + dt.getFullYear();
 
                     // Format time HH:MM AM/PM
-                    let hours = eventDate.getHours();
-                    const minutes = ("0" + eventDate.getMinutes()).slice(-2);
-                    const ampm = hours >= 12 ? "PM" : "AM";
-                    hours = hours % 12 || 12;
-                    const startTime = hours + ":" + minutes + " " + ampm;
+                    const formatTime = dt => {
+                        let hours = dt.getHours();
+                        const minutes = ("0" + dt.getMinutes()).slice(-2);
+                        const ampm = hours >= 12 ? "PM" : "AM";
+                        hours = hours % 12 || 12;
+                        return hours + ":" + minutes + " " + ampm;
+                    }
+
+                    const startDate = formatDate(startDateTime);
+                    const startTime = formatTime(startDateTime);
+                    const endDate = formatDate(endDateTime);
+                    const endTime = formatTime(endDateTime);
 
                     // Format names with @
                     const namesList = names.split(",").map(n => "@" + n.trim() + " ,").join(" ");
 
                     const description = `"Outing Reminder:\n${details} - ${namesList}\nPlease like to confirm!"`;
 
-                    csvRows.push(`"Send Outing Reminder",${startDate},${startTime},${description}`);
+                    csvRows.push(`"Send Outing Reminder",${startDate},${startTime},${endDate},${endTime},${description}`);
                 }
             });
 
@@ -69,4 +79,3 @@
     </script>
 </body>
 </html>
-
