@@ -12,7 +12,7 @@
 <body>
     <h2>Reminder Generator for Google Calendar</h2>
     <p>Paste your outing lines below (one per line):</p>
-    <textarea id="input" placeholder="e.g. 01/01 Monday 6:00am, Water Outing - John Brown, James Green"></textarea>
+    <textarea id="input" placeholder="e.g. 01/01 Monday 6:00am, Water Outing - John Brown, James Green, Cox: Jane Grey"></textarea>
     <br>
     <button onclick="downloadCSV()">Download CSV for Calendar</button>
 
@@ -58,8 +58,16 @@
                     const endDate = formatDate(endDateTime);
                     const endTime = formatTime(endDateTime);
 
-                    // Format names with @
-                    const namesList = names.split(",").map(n => "@" + n.trim() + " ,").join(" ");
+                    // Format names with @, handle roles like "Cox:"
+                    const namesList = names.split(",").map(n => {
+                        let trimmed = n.trim();
+                        if (trimmed.includes(":")) {
+                            let [role, name] = trimmed.split(":");
+                            return role.trim() + ": @" + name.trim() + " ,";
+                        } else {
+                            return "@" + trimmed + " ,";
+                        }
+                    }).join(" ");
 
                     const description = `"Outing Reminder:\n${details} - ${namesList}\nPlease like to confirm!"`;
 
