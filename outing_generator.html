@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Outing Copypasta Generator</title>
+</head>
+<body>
+    <h2>Outing Copypasta Generator</h2>
+
+    <textarea id="input" rows="10" cols="80" placeholder="Paste your outings here, one per line..."></textarea>
+    <br><br>
+    <button onclick="generateCopypasta()">Generate Copypasta</button>
+    <button onclick="copyToClipboard()">Copy to Clipboard</button>
+    <br><br>
+    <textarea id="output" rows="15" cols="80" placeholder="Formatted output will appear here"></textarea>
+
+    <script>
+        function generateCopypasta() {
+            const input = document.getElementById("input").value.trim();
+            const lines = input.split("\n");
+            let result = [];
+
+            lines.forEach(line => {
+                if (line.includes(" - ")) {
+                    const [details, names] = line.split(" - ");
+                    const namesList = names.split(",").map(n => "@" + n.trim() + " ,").join(" ");
+                    const formatted = `Outing Reminder:\n${details} - ${namesList}\nPlease like to confirm!`;
+                    result.push(formatted);
+                }
+            });
+
+            document.getElementById("output").value = result.join("\n\n");
+        }
+
+        function copyToClipboard() {
+            const output = document.getElementById("output");
+            output.select();
+            output.setSelectionRange(0, 99999); // For mobile
+            navigator.clipboard.writeText(output.value).then(() => {
+                alert("Copypasta copied to clipboard!");
+            });
+        }
+    </script>
+</body>
+</html>
