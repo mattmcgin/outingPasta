@@ -1,44 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Outing Reminder Generator</title>
+    <meta charset="UTF-8">
+    <title>Reminder Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        textarea { width: 100%; height: 150px; margin-bottom: 10px; }
+        button { padding: 10px 15px; font-size: 14px; }
+    </style>
 </head>
 <body>
-    <h2>Outing Reminder Generator</h2>
-
-    <textarea id="input" rows="10" cols="80" placeholder="Paste your outings here, one per line..."></textarea>
-    <br><br>
-    <button onclick="generateCopypasta()">Generate Reminders</button>
-    <button onclick="copyToClipboard()">Copy to Clipboard</button>
-    <br><br>
-    <textarea id="output" rows="15" cols="80" placeholder="Formatted output will appear here"></textarea>
+    <h2>Reminder Generator</h2>
+    <p>Paste your outing lines below (one per line):</p>
+    <textarea id="input" placeholder="e.g. 01/01 Monday 6:00am, Water Outing - John Smith, Jane Jones"></textarea>
+    <br>
+    <button onclick="downloadCSV()">Download CSV for Calendar</button>
 
     <script>
-        function generateCopypasta() {
+        function downloadCSV() {
             const input = document.getElementById("input").value.trim();
             const lines = input.split("\n");
-            let result = [];
+            let csvRows = ["Subject,Start Date,Start Time,Description"];
+            const currentYear = new Date().getFullYear();
 
             lines.forEach(line => {
-                if (line.includes(" - ")) {
+                if(line.includes(" - ")) {
                     const [details, names] = line.split(" - ");
+
+                    // Extract day/month
+                    const dateMatch = details.match(/(\d{1,2})\/(\d{1,2})/);
+                    if(!dateMatch) return;
+
+                    const day = parseInt(dateMatch[1]);
+                    const month = parseInt(dateMatch[2]) - 1; // JS months 0-11
+
+                    // Calculate day before at 7AM
+                    const eventDate = new Date(currentYear, month, day, 7, 0);
+                    eventDate.setDate(eventDate.getDate() - 1);
+
+                    // Format date DD/MM/YYYY
+                    const startDate = ("0"+eventDate.getDate()).slice(-2) + "/" + ("0"+(eventDate.getMonth()+1)).slice(-2) + "/" + eventDate.getFullYear();
+
+                    // Format time HH:MM AM/PM
+                    let hours = eventDate.getHours();
+                    const minutes = ("0" + eventDate.getMinutes()).slice(-2);
+                    const ampm = hours >= 12 ? "PM" : "AM";
+                    hours = hours % 12 || 12;
+                    const startTime = hours + ":" + minutes + " " + ampm;
+
+                    // Format names with @
                     const namesList = names.split(",").map(n => "@" + n.trim() + " ,").join(" ");
-                    const formatted = `Outing Reminder:\n${details} - ${namesList}\nPlease like to confirm!`;
-                    result.push(formatted);
+
+                    const description = `"Outing Reminder:\n${details} - ${namesList}\nPlease like to confirm!"`;
+
+                    csvRows.push(`"Send Outing Reminder",${startDate},${startTime},${description}`);
                 }
             });
 
-            document.getElementById("output").value = result.join("\n\n");
-        }
-
-        function copyToClipboard() {
-            const output = document.getElementById("output");
-            output.select();
-            output.setSelectionRange(0, 99999); // For mobile
-            navigator.clipboard.writeText(output.value).then(() => {
-                alert("Reminders copied to clipboard!");
-            });
+            const csvContent = csvRows.join("\n");
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "outing_reminders.csv";
+            a.click();
+            URL.revokeObjectURL(url);
         }
     </script>
 </body>
 </html>
+
