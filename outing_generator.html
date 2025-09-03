@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Reminder Generator</title>
+    <title>Reminder Generator for Outlook</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         textarea { width: 100%; height: 150px; margin-bottom: 10px; }
@@ -10,17 +10,17 @@
     </style>
 </head>
 <body>
-    <h2>Reminder Generator</h2>
+    <h2>Reminder Generator for Outlook</h2>
     <p>Paste your outing lines below (one per line):</p>
     <textarea id="input" placeholder="e.g. 01/01 Monday 6:00am, Water Outing - John Brown, James Green"></textarea>
     <br>
-    <button onclick="downloadCSV()">Download CSV for Calendar</button>
+    <button onclick="downloadCSV()">Download CSV for Outlook</button>
 
     <script>
         function downloadCSV() {
             const input = document.getElementById("input").value.trim();
             const lines = input.split("\n");
-            let csvRows = ["Subject,Start Date,Start Time,End Date,End Time,Description,Reminder on/off,Reminder Minutes"];
+            let csvRows = ["Subject,Start Date,Start Time,End Date,End Time,Description,Reminder On/Off,Reminder Date,Reminder Time"];
             const currentYear = new Date().getFullYear();
 
             lines.forEach(line => {
@@ -41,7 +41,7 @@
                     // End time = 15 minutes after start
                     const endDateTime = new Date(startDateTime.getTime() + 15 * 60000);
 
-                    // Format dates MM/DD/YYYY for Google Calendar
+                    // Format dates MM/DD/YYYY (Outlook prefers US format)
                     const formatDate = dt => ("0"+(dt.getMonth()+1)).slice(-2) + "/" + ("0"+dt.getDate()).slice(-2) + "/" + dt.getFullYear();
 
                     // Format time HH:MM AM/PM
@@ -63,8 +63,8 @@
 
                     const description = `"Outing Reminder:\n${details} - ${namesList}\nPlease like to confirm!"`;
 
-                    // Reminder 0 minutes before
-                    csvRows.push(`"Send Outing Reminder",${startDate},${startTime},${endDate},${endTime},${description},TRUE,0`);
+                    // Reminder set at 0 minutes before event (same as start time)
+                    csvRows.push(`"Send Outing Reminder",${startDate},${startTime},${endDate},${endTime},${description},TRUE,${startDate},${startTime}`);
                 }
             });
 
@@ -73,7 +73,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = "outing_reminders.csv";
+            a.download = "outing_reminders_outlook.csv";
             a.click();
             URL.revokeObjectURL(url);
         }
