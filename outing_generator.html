@@ -8,7 +8,7 @@
 
     <textarea id="input" rows="10" cols="80" placeholder="Paste your outings here, one per line..."></textarea>
     <br><br>
-    <button onclick="generateCopypasta()">Generate Copypasta</button>
+    <button onclick="generateCopypasta()">Generate Reminders</button>
     <button onclick="copyToClipboard()">Copy to Clipboard</button>
     <br><br>
     <textarea id="output" rows="15" cols="80" placeholder="Formatted output will appear here"></textarea>
@@ -36,7 +36,7 @@
             output.select();
             output.setSelectionRange(0, 99999); // For mobile
             navigator.clipboard.writeText(output.value).then(() => {
-                alert("Copypasta copied to clipboard!");
+                alert("Reminders copied to clipboard!");
             });
         }
     </script>
