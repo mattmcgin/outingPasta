@@ -20,7 +20,7 @@
         function downloadCSV() {
             const input = document.getElementById("input").value.trim();
             const lines = input.split("\n");
-            let csvRows = ["Subject,Start Date,Start Time,End Date,End Time,Description"];
+            let csvRows = ["Subject,Start Date,Start Time,End Date,End Time,Description,Reminder on/off,Reminder Minutes"];
             const currentYear = new Date().getFullYear();
 
             lines.forEach(line => {
@@ -63,7 +63,8 @@
 
                     const description = `"Outing Reminder:\n${details} - ${namesList}\nPlease like to confirm!"`;
 
-                    csvRows.push(`"Send Outing Reminder",${startDate},${startTime},${endDate},${endTime},${description}`);
+                    // Reminder 0 minutes before
+                    csvRows.push(`"Send Outing Reminder",${startDate},${startTime},${endDate},${endTime},${description},TRUE,0`);
                 }
             });
 
